@@ -23,7 +23,7 @@
 #define NUM_STAT_LIST 8
 #define GREPLIST_LENGTH 53
 
-//#define TURNOFFDEBUG 1
+#define TURNOFFDEBUG 1
 //#define TURNOFFINFO 1
 
 #ifdef TURNOFFDEBUG
@@ -40,7 +40,6 @@
 
 MSConfig(MSFilterExecutable, "/system/bin/app_process")
 
-static FILE * (*s_orig_fopen) ( const char * filename, const char * mode );
 static int (*s_orig_access)(const char *pathname, int mode);
 static int (*s_orig_execve)(const char *filename, char *const argv[],char *const envp[]);
 static int (*s_orig_stat)( const char *path, struct stat *buf );
@@ -192,53 +191,6 @@ int custom_read_line ( char * str, int num, int fd ) {
 }
 
 /*
- * Uses fopen, bad!
- */
-void load_blacklist_entries_old() {
-	blacklist_entry_count = 0;
-	char line[256]; // Holds the line currently being read
-	FILE *blacklist_file;
-	if (!(blacklist_file = s_orig_fopen(blacklist_filename, "r"))) { // Open the file to read from
-		LOGD("load_blacklist_entries: Error opening blacklist_file. filename: [%s], error: [%s]", blacklist_filename, strerror(errno));
-		blacklist_entries = blacklist;
-		blacklist_entry_count = NUM_BLACKLIST;
-	} else if (fgets(line, 256, blacklist_file) != NULL) {
-		line[255] = 0; // Make sure its null terminated
-		blacklist_entry_count = atoi(line);
-		LOGI("atoi: [%s]", line);
-
-		if (blacklist_entry_count > 0) {
-
-			blacklist_entries = malloc(blacklist_entry_count * sizeof(char*));
-			for (int i = 0; i < blacklist_entry_count; i++) {
-				blacklist_entries[i] = malloc((256) * sizeof(char)); // yeah, I know sizeof(char) is 1, but to make it clear...
-			}
-
-			int counter = 0;
-			while ( (fgets (blacklist_entries[counter], 256, blacklist_file) != NULL) && (counter < blacklist_entry_count) ) {
-				char *pos;
-				if ((pos=strchr(blacklist_entries[counter], '\n')) != NULL) {
-				    *pos = '\0';
-				}
-
-				LOGI("load_blacklist_entries: Loaded: [%s]", blacklist_entries[counter]);
-
-				counter++;
-			}
-		} else {
-			blacklist_entries = blacklist;
-			blacklist_entry_count = NUM_BLACKLIST;
-		}
-
-		fclose(blacklist_file);
-	} else {
-		fclose(blacklist_file);
-		blacklist_entries = blacklist;
-		blacklist_entry_count = NUM_BLACKLIST;
-	}
-}
-
-/*
  * Uses open, good!
  */
 void load_blacklist_entries() {
@@ -253,7 +205,7 @@ void load_blacklist_entries() {
 	} else if (custom_read_line(line, 256, blacklist_fd) > 0) {
 		line[255] = 0; // Make sure its null terminated
 		blacklist_entry_count = atoi(line);
-		LOGI("atoi: [%s]", line);
+		//LOGI("atoi: [%s]", line);
 
 		if (blacklist_entry_count > 0) {
 
@@ -386,20 +338,6 @@ std::string get_selfpath() {
 }
 
 /*
- * This one uses fopen, which we can no longer use.
- */
-void get_process_name_old(char *buffer, size_t len) {
-	FILE* status = fopen( "/proc/self/cmdline", "r" );
-	if (status != NULL) {
-		fscanf ( status, "%s", buffer );
-		fclose (status);
-	} else {
-		buffer = "NONAME";
-		buffer[6] = '\0';
-	}
-}
-
-/*
  * Uses open.
  * Need to pass in a buffer of at least size 7 please!
  */
@@ -519,52 +457,6 @@ int generate_random_cache_filename(const char * random_cache_filename, size_t fi
 }
 
 /*
- * This performs filtered duplication of a file on a line-by-line basis. Currently it just removes the entire line if it has a matching keyword.
- * NOT FOR USE WITH MAGIC FILES. USE duplicate_magic_file INSTEAD!
- * Returns 0 if successful, and a positive int if not.
- */
-int filtered_duplicate_file_old(const char * filename, const char * new_filename) {
-	char random_cache_filename[512]; // Holds the random cache filename that gets generated
-	FILE *infile;
-	FILE *outfile;
-	char line[256]; // Holds the line currently being read
-	char modifiedLine[256]; // FOR FUTURE USE. Holds modified version of line being read
-
-	generate_random_cache_filename(random_cache_filename, 512, 16); // Generate a random cache filename
-
-	LOGD("filtered_duplicate_file: filename: [%s], random_cache_filename: [%s]", filename, random_cache_filename);
-
-	if (!(infile = s_orig_fopen(filename, "r"))) { // Open the file to read from
-		LOGD("filtered_duplicate_file: Error opening infile. filename: [%s], error: [%s]", filename, strerror(errno));
-		return 1; // For now just return the original path that was passed in
-	}
-
-	if (!(outfile = s_orig_fopen(random_cache_filename, "w"))) {
-		LOGD("filtered_duplicate_file: Error opening outfile. random_cache_filename: [%s], error: [%s]", random_cache_filename, strerror(errno));
-		fclose(infile);
-		return 2; // For now just return the original path that was passed in
-	}
-
-	LOGD("filtered_duplicate_file: Proceeding to copying and filtering...");
-
-	while (fgets (line, 256, infile) != NULL) {
-		if (!is_keyword_in_string(line)) { // If the line has no keywords in it, then output it to the new file
-			fprintf(outfile,"%s\n", line);
-		}
-		else {
-			LOGI("filtered_duplicate_file: Filtered out line: [%s]", line);
-		}
-	}
-
-	fclose(infile);
-	fclose(outfile);
-
-	strncpy(new_filename, random_cache_filename, 512); // After everything was successful, copy over the filename for usage
-
-	return 0;
-}
-
-/*
  * Uses open instead of fopen
  * This performs filtered duplication of a file on a line-by-line basis. Currently it just removes the entire line if it has a matching keyword.
  * NOT FOR USE WITH MAGIC FILES. USE duplicate_magic_file INSTEAD!
@@ -581,7 +473,7 @@ int filtered_duplicate_file(const char * filename, const char * new_filename) {
 
 	generate_random_cache_filename(random_cache_filename, 512, 16); // Generate a random cache filename
 
-	LOGI("filtered_duplicate_file: filename: [%s], random_cache_filename: [%s]", filename, random_cache_filename);
+	LOGD("filtered_duplicate_file: filename: [%s], random_cache_filename: [%s]", filename, random_cache_filename);
 
 	infile = s_orig_open(filename, O_RDONLY);
 	if (infile <= 0) { // Open the file to read from
@@ -596,7 +488,7 @@ int filtered_duplicate_file(const char * filename, const char * new_filename) {
 		return 2; // For now just return the original path that was passed in
 	}
 
-	LOGI("filtered_duplicate_file: Proceeding to copying and filtering...");
+	LOGD("filtered_duplicate_file: Proceeding to copying and filtering...");
 
 	while (custom_read_line(line, 256, infile) > 0) {
 		if (!is_keyword_in_string(line)) { // If the line has no keywords in it, then output it to the new file
@@ -940,81 +832,6 @@ static int my_access (const char *pathname, int mode)
 	return s_orig_access(pathname, mode);
 }
 
-static FILE * my_fopen ( const char * filename, const char * mode ) {
-	if ((filename != NULL) && (strcmp (filename, "/proc/self/cmdline") == 0)) { // THIS IS SUPER FUCKING IMPORTANT
-		return s_orig_fopen(filename, mode);
-	}
-
-	char process_name[512];
-	get_process_name(process_name, 512);
-
-	char new_filename[512];
-
-	if ((process_name != NULL) && (*process_name != '\0')) { // Check to make sure the process_name is not NULL
-
-		if (is_process_on_blacklist(process_name)) { // If this is a blacklisted process, proceed
-			LOGD("NATIVE: FOPEN. Process is on the blacklist...");
-			LOGD("NATIVE: FOPEN.000 processname: [%s] and filename: [%s]", process_name, filename);
-
-
-			// If the filename is not NULL, and this is a path or apk we want to hide, do so
-			if ( (filename != NULL) && ( is_path_on_su_list(filename) || is_keyword_in_string(filename) ) ) {
-				LOGD("NATIVE: FOPEN. filename is on the blacklist...");
-				LOGD("NATIVE: FOPEN. processname: [%s] and filename: [%s]", process_name, filename);
-				if (strcmp(filename, "/data/system/packages.list") == 0) {
-					LOGD("NATIVE: FOPEN. doing magic on packages.list");
-					int testingInt = filtered_duplicate_file(filename, new_filename);
-					if (testingInt == 0) {
-						LOGD("NATIVE: FOPEN. new_filename: [%s]", new_filename);
-						FILE * tempPtr = s_orig_fopen(new_filename, mode);
-						remove(new_filename);
-						return tempPtr;
-					}
-					else {
-						LOGD("NATIVE: FOPEN. using original path");
-						return s_orig_fopen(filename, mode);
-					}
-				} else {
-					LOGD("NATIVE: FOPEN. blocking blacklisted filename...");
-					return s_orig_fopen("/system/xbin/FAKEFILE", mode);
-				}
-			} else if ( (filename != NULL) && (strncmp (filename, "/proc/", 6) == 0  ) &&
-					(strncmp(filename, "/proc/self/", 11) != 0 ) && (ends_with(filename, "/stat") || ends_with(filename, "/cmdline") ||
-							ends_with(filename, "/status") || ends_with(filename, "/maps") ) ) {
-				LOGD("NATIVE: FOPEN. filename has /proc/...");
-				LOGD("NATIVE: FOPEN. processname: [%s] and filename: [%s]", process_name, filename);
-				LOGD("NATIVE: FOPEN. blocking blacklisted filename...");
-				if (ends_with(filename, "/stat")) {
-					return s_orig_fopen("/proc/1/stat", mode);
-				} else if (ends_with(filename, "/cmdline")) {
-					return s_orig_fopen("/proc/1/cmdline", mode);
-				} else if (ends_with(filename, "/status")) {
-					return s_orig_fopen("/proc/1/status", mode);
-				} else if (ends_with(filename, "/maps")) {
-					return s_orig_fopen("/proc/1/maps", mode);
-				}
-			} /*else if ( (strncmp(filename, "/proc/self/", 11) == 0 ) && (ends_with(filename, "/maps")) ) {
-				if (ends_with(filename, "/maps")) {
-					LOGD("NATIVE: FOPEN. old file path: /proc/self/maps");
-					int testingInt = duplicate_magic_file(filename, new_filename);
-					if (testingInt == 0) {
-						LOGD("NATIVE: FOPEN. new_filename: [%s]", new_filename);
-						FILE * tempPtr = s_orig_fopen(new_filename, mode);
-						remove(new_filename);
-						return tempPtr;
-					}
-					else {
-						LOGD("NATIVE: FOPEN. using original path");
-						return s_orig_fopen(filename, mode);
-					}
-				}
-			}*/
-		}
-	}
-
-	return s_orig_fopen(filename, mode);
-}
-
 static int my_open(const char *path, int oflags, ... ) {
 	va_list vl;
 	mode_t mode;
@@ -1045,7 +862,7 @@ static int my_open(const char *path, int oflags, ... ) {
 
 	if ((process_name != NULL)) { // Check to make sure the buffer is not NULL
 		if (is_process_on_blacklist(process_name) && (path != NULL)) {
-			LOGI("NATIVE: OPEN. Process is on the blacklist: [%s], path: [%s]", process_name, path);
+			LOGD("NATIVE: OPEN. Process is on the blacklist: [%s], path: [%s]", process_name, path);
 			if ( is_path_on_su_list(path) || is_keyword_in_string(path) ) {
 				LOGD("NATIVE: OPEN. Blacklisted path. processname: [%s], filename: [%s]", process_name, path);
 				if (strcmp(path, "/data/system/packages.list") == 0) {
@@ -1096,7 +913,7 @@ static int my_open(const char *path, int oflags, ... ) {
 	}
 
 	if (remove_file > 0) {
-		LOGI("NATIVE: OPEN. new_filename: [%s]", new_filename);
+		LOGD("NATIVE: OPEN. new_filename: [%s]", new_filename);
 		LOGD("NATIVE: OPEN. remove() performed on duplicated file before returning.");
 		remove(new_filename);
 	}
@@ -1105,7 +922,6 @@ static int my_open(const char *path, int oflags, ... ) {
 }
 
 MSInitialize {
-	//MSHookFunction(fopen, my_fopen, (void*)&s_orig_fopen);
 	MSHookFunction(access, my_access, (void*)&s_orig_access);
 	MSHookFunction(execve, my_execve, (void*)&s_orig_execve);
 	MSHookFunction(stat, my_stat, (void*)&s_orig_stat);

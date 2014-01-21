@@ -51,8 +51,8 @@ public class Main {
 						return invoke(_this, args);
 					}
 
-					Log.i(Common.TAG, "Blacklisted app: " + testName);
-					Log.i(Common.TAG, "Called getSystemSharedLibraryNames.");
+					Log.i(Common.TAG, "1 Blacklisted app: " + testName);
+					//Log.i(Common.TAG, "Called getSystemSharedLibraryNames.");
 
 					String[] libraries = (String[]) invoke(_this, args);
 					ArrayList<String> cleanLibraries = new ArrayList<String>();
@@ -64,7 +64,7 @@ public class Main {
 					return cleanLibraries.toArray(new String[0]);
 				}
 			});
-			Log.d(Common.TAG, "initForPackageManager: getSystemSharedLibraryNames success.");
+			//Log.d(Common.TAG, "initForPackageManager: getSystemSharedLibraryNames success.");
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -85,8 +85,8 @@ public class Main {
 						return invoke(_this, args);
 					}
 
-					Log.i(Common.TAG, "Blacklisted app: " + testName);
-					Log.i(Common.TAG, "Called getPackagesForUid.");
+					Log.i(Common.TAG, "2 Blacklisted app: " + testName);
+					//Log.i(Common.TAG, "Called getPackagesForUid.");
 
 					String[] packages = (String[]) invoke(_this, args);
 					ArrayList<String> cleanPackages = new ArrayList<String>();
@@ -98,7 +98,7 @@ public class Main {
 					return cleanPackages.toArray(new String[0]);
 				}
 			});
-			Log.d(Common.TAG, "initForPackageManager: getPackagesForUid success.");
+			//Log.d(Common.TAG, "initForPackageManager: getPackagesForUid success.");
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -120,8 +120,8 @@ public class Main {
 						return invoke(_this, args);
 					}
 
-					Log.i(Common.TAG, "Blacklisted app: " + testName);
-					Log.i(Common.TAG, "Called getResourcesForApplication for: " + (String)args[0]);
+					Log.i(Common.TAG, "3 Blacklisted app: " + testName);
+					//Log.i(Common.TAG, "Called getResourcesForApplication for: " + (String)args[0]);
 
 					String packageName = (String) args[0];
 					if(packageName != null && stringContainsFromCollection(packageName, Common.DEFAULT_KEYWORD_ENTRIES)) {
@@ -132,7 +132,7 @@ public class Main {
 					return invoke(_this, args);
 				}
 			});
-			Log.d(Common.TAG, "initForPackageManager: getResourcesForApplication success.");
+			//Log.d(Common.TAG, "initForPackageManager: getResourcesForApplication success.");
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -153,8 +153,8 @@ public class Main {
 						return invoke(_this, args);
 					}
 
-					Log.i(Common.TAG, "Blacklisted app: " + testName);
-					Log.i(Common.TAG, "Called getDrawable for: " + (String)args[0]);
+					Log.i(Common.TAG, "4 Blacklisted app: " + testName);
+					//Log.i(Common.TAG, "Called getDrawable for: " + (String)args[0]);
 
 					String packageName = (String) args[0];
 					if(packageName != null && stringContainsFromCollection(packageName, Common.DEFAULT_KEYWORD_ENTRIES)) {
@@ -165,7 +165,7 @@ public class Main {
 					return invoke(_this, args);
 				}
 			});
-			Log.d(Common.TAG, "initForPackageManager: getDrawable success.");
+			//Log.d(Common.TAG, "initForPackageManager: getDrawable success.");
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -185,8 +185,8 @@ public class Main {
 						return invoke(_this, args);
 					}
 
-					Log.i(Common.TAG, "Blacklisted app: " + testName);
-					Log.i(Common.TAG, "Called getApplicationLogo for: " + (String)args[0]);
+					Log.i(Common.TAG, "5 Blacklisted app: " + testName);
+					//Log.i(Common.TAG, "Called getApplicationLogo for: " + (String)args[0]);
 
 					String packageName = (String) args[0];
 					if(packageName != null && stringContainsFromCollection(packageName, Common.DEFAULT_KEYWORD_ENTRIES)) {
@@ -197,7 +197,7 @@ public class Main {
 					return invoke(_this, args);
 				}
 			});
-			Log.d(Common.TAG, "initForPackageManager: getApplicationLogo success.");
+			//Log.d(Common.TAG, "initForPackageManager: getApplicationLogo success.");
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -218,8 +218,8 @@ public class Main {
 						return invoke(_this, args);
 					}
 
-					Log.i(Common.TAG, "Blacklisted app: " + testName);
-					Log.i(Common.TAG, "Called getApplicationIcon for: " + (String)args[0]);
+					Log.i(Common.TAG, " 6Blacklisted app: " + testName);
+					//Log.i(Common.TAG, "Called getApplicationIcon for: " + (String)args[0]);
 
 					String packageName = (String) args[0];
 					if(packageName != null && stringContainsFromCollection(packageName, Common.DEFAULT_KEYWORD_ENTRIES)) {
@@ -230,7 +230,7 @@ public class Main {
 					return invoke(_this, args);
 				}
 			});
-			Log.d(Common.TAG, "initForPackageManager: getApplicationIcon success.");
+			//Log.d(Common.TAG, "initForPackageManager: getApplicationIcon success.");
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -250,8 +250,8 @@ public class Main {
 						return invoke(_this, args);
 					}
 
-					Log.i(Common.TAG, "Blacklisted app: " + testName);
-					Log.i(Common.TAG, "Called getApplicationEnabledSetting for: " + (String)args[0]);
+					Log.i(Common.TAG, "7 Blacklisted app: " + testName);
+					//Log.i(Common.TAG, "Called getApplicationEnabledSetting for: " + (String)args[0]);
 
 					String packageName = (String) args[0];
 					if(packageName != null && stringContainsFromCollection(packageName, Common.DEFAULT_KEYWORD_ENTRIES)) {
@@ -262,7 +262,7 @@ public class Main {
 					return invoke(_this, args);
 				}
 			});
-			Log.d(Common.TAG, "initForPackageManager: getApplicationEnabledSetting success.");
+			//Log.d(Common.TAG, "initForPackageManager: getApplicationEnabledSetting success.");
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -283,7 +283,7 @@ public class Main {
 						return invoke(_this, args);
 					}
 
-					Log.i(Common.TAG, "Blacklisted app: " + testName);
+					Log.i(Common.TAG, "8 Blacklisted app: " + testName);
 
 					List<ApplicationInfo> packages = (List<ApplicationInfo>) invoke(_this, args);
 					Iterator<ApplicationInfo> iter = packages.iterator();
@@ -319,7 +319,7 @@ public class Main {
 						return invoke(_this, args);
 					}
 
-					Log.i(Common.TAG, "Blacklisted app: " + testName);
+					Log.i(Common.TAG, "9 Blacklisted app: " + testName);
 
 					String packageName = (String) args[0];
 					if(packageName != null && stringContainsFromCollection(packageName, Common.DEFAULT_KEYWORD_ENTRIES)) {
@@ -357,7 +357,7 @@ public class Main {
 						return invoke(_this, args);
 					}
 
-					Log.i(Common.TAG, "Blacklisted app: " + testName);
+					Log.i(Common.TAG, "10 Blacklisted app: " + testName);
 
 					List<RunningAppProcessInfo> processes = (List<RunningAppProcessInfo>) invoke(_this, args);
 					Iterator<RunningAppProcessInfo> iter = processes.iterator();
@@ -393,7 +393,7 @@ public class Main {
 						return invoke(_this, args);
 					}
 
-					Log.i(Common.TAG, "Blacklisted app: " + testName);
+					Log.i(Common.TAG, "11 Blacklisted app: " + testName);
 
 					List<RunningTaskInfo> tasks = (List<RunningTaskInfo>) invoke(_this, args);
 					Iterator<RunningTaskInfo> iter = tasks.iterator();
@@ -429,7 +429,7 @@ public class Main {
 						return invoke(_this, args);
 					}
 
-					Log.i(Common.TAG, "Blacklisted app: " + testName);
+					Log.i(Common.TAG, "12 Blacklisted app: " + testName);
 
 					List<RunningServiceInfo> services = (List<RunningServiceInfo>) invoke(_this, args);
 					Iterator<RunningServiceInfo> iter = services.iterator();
@@ -466,7 +466,7 @@ public class Main {
 						return invoke(_this, args);
 					}
 
-					Log.i(Common.TAG, "Blacklisted app: " + testName);
+					Log.i(Common.TAG, "13 Blacklisted app: " + testName);
 
 					List<RecentTaskInfo> tasks = (List<RecentTaskInfo>) invoke(_this, args);
 					Iterator<RecentTaskInfo> iter = tasks.iterator();
@@ -508,7 +508,7 @@ public class Main {
 						return invoke(_this, args);
 					}
 
-					Log.i(Common.TAG, "Blacklisted app: " + testName);
+					Log.i(Common.TAG, "14 Blacklisted app: " + testName);
 					String[] execArray = (String[]) args[0];
 					if ((execArray != null)  && (execArray.length >= 1)) {
 //						String tempString = "Exec Command:";
@@ -590,7 +590,7 @@ public class Main {
 						return invoke(_this, args);
 					}
 
-					Log.i(Common.TAG, "Blacklisted app: " + testName);
+					Log.i(Common.TAG, "15 Blacklisted app: " + testName);
 
 
 					List<String> execList = (List<String>) args[0];
@@ -654,7 +654,7 @@ public class Main {
 						return invoke(_this, args);
 					}
 
-					Log.i(Common.TAG, "Blacklisted app: " + testName);
+					Log.i(Common.TAG, "16 Blacklisted app: " + testName);
 
 
 					List<String> execList = (List<String>) args[0];
