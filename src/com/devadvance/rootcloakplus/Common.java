@@ -132,7 +132,10 @@ public class Common {
 		"com.orange.fr.ocs",
 		"com.adb.android.app.iti",
 		"com.mobileiron", 
-		"be.belgacom.mobile.tveverywhere"};
+		"be.belgacom.mobile.tveverywhere", 
+		"com.asobimo.celes_gp_en",
+		"com.starfinanz.smob.android.sbanking",
+		"com.channel4.ondemand"};
 	public static final List<String> DEFAULT_BLACKLIST_ENTRIES = new ArrayList<String> (Arrays.asList(DEFAULT_BLACKLIST_ARRAY));
 	public static final String DEBUG_KEY = "DEBUGGERPREF";
 	

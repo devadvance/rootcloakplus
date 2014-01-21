@@ -16,7 +16,7 @@
 
 #define DEBUG_TAG "RootCloakPlus"
 #define INFO_TAG "RootCloakPlus"
-#define NUM_BLACKLIST 45
+#define NUM_BLACKLIST 48
 #define NUM_SU_LIST 5
 #define NUM_KEYWORD_LIST 20
 #define NUM_CMD_LIST 2
@@ -101,7 +101,10 @@ const char* blacklist[] = { "com.fde.DomesticDigitalCopy",
 		"com.orange.fr.ocs",
 		"com.adb.android.app.iti",
 		"com.mobileiron",
-		"be.belgacom.mobile.tveverywhere" };
+		"be.belgacom.mobile.tveverywhere",
+		"com.asobimo.celes_gp_en",
+		"com.starfinanz.smob.android.sbanking",
+		"com.channel4.ondemand" };
 
 const char* su_list[] = { "/system/xbin/su",
 		"/system/bin/su",
