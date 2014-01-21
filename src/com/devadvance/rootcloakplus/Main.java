@@ -39,6 +39,239 @@ public class Main {
 		Class _class;
 		Method method;
 		Constructor constructor;
+		
+		try {
+			_class = Class.forName("android.app.ApplicationPackageManager");
+			method = _class.getMethod("getSystemSharedLibraryNames", Integer.TYPE);
+			MS.hookMethod(_class, method, new MethodAlteration<Object, Object>() {
+				public Object invoked(Object _this, Object... args) throws Throwable {
+					final String testName = Common.getProcessName();
+					if (testName == null || !isBlacklisted(testName)) {
+						//Log.d(Common.TAG, "hookMethod, and testName: " + testName);
+						return invoke(_this, args);
+					}
+
+					Log.i(Common.TAG, "1 Blacklisted app: " + testName);
+					//Log.i(Common.TAG, "Called getSystemSharedLibraryNames.");
+
+					String[] libraries = (String[]) invoke(_this, args);
+					ArrayList<String> cleanLibraries = new ArrayList<String>();
+					for (String item : libraries) {
+						if(item != null && !stringContainsFromCollection(item, Common.DEFAULT_KEYWORD_ENTRIES)) {
+							cleanLibraries.add(item);
+						}
+					}
+					return cleanLibraries.toArray(new String[0]);
+				}
+			});
+			//Log.d(Common.TAG, "initForPackageManager: getSystemSharedLibraryNames success.");
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (NoSuchMethodException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
+		try {
+			_class = Class.forName("android.app.ApplicationPackageManager");
+			method = _class.getMethod("getPackagesForUid", Integer.TYPE);
+			MS.hookMethod(_class, method, new MethodAlteration<Object, Object>() {
+				public Object invoked(Object _this, Object... args) throws Throwable {
+					final String testName = Common.getProcessName();
+					if (testName == null || !isBlacklisted(testName)) {
+						//Log.d(Common.TAG, "hookMethod, and testName: " + testName);
+						return invoke(_this, args);
+					}
+
+					Log.i(Common.TAG, "2 Blacklisted app: " + testName);
+					//Log.i(Common.TAG, "Called getPackagesForUid.");
+
+					String[] packages = (String[]) invoke(_this, args);
+					ArrayList<String> cleanPackages = new ArrayList<String>();
+					for (String item : packages) {
+						if(item != null && !stringContainsFromCollection(item, Common.DEFAULT_KEYWORD_ENTRIES)) {
+							cleanPackages.add(item);
+						}
+					}
+					return cleanPackages.toArray(new String[0]);
+				}
+			});
+			//Log.d(Common.TAG, "initForPackageManager: getPackagesForUid success.");
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (NoSuchMethodException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
+		
+		try {
+			_class = Class.forName("android.app.ApplicationPackageManager");
+			method = _class.getMethod("getResourcesForApplication", String.class);
+			MS.hookMethod(_class, method, new MethodAlteration<Object, Object>() {
+				public Object invoked(Object _this, Object... args) throws Throwable {
+					final String testName = Common.getProcessName();
+					if (testName == null || !isBlacklisted(testName)) {
+						//Log.d(Common.TAG, "hookMethod, and testName: " + testName);
+						return invoke(_this, args);
+					}
+
+					Log.i(Common.TAG, "3 Blacklisted app: " + testName);
+					//Log.i(Common.TAG, "Called getResourcesForApplication for: " + (String)args[0]);
+
+					String packageName = (String) args[0];
+					if(packageName != null && stringContainsFromCollection(packageName, Common.DEFAULT_KEYWORD_ENTRIES)) {
+						packageName = "FAKEPACKAGENAME";
+						args[0] = packageName;
+					}
+
+					return invoke(_this, args);
+				}
+			});
+			//Log.d(Common.TAG, "initForPackageManager: getResourcesForApplication success.");
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (NoSuchMethodException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
+		try {
+			_class = Class.forName("android.app.ApplicationPackageManager");
+			method = _class.getMethod("getDrawable", String.class, Integer.TYPE, ApplicationInfo.class);
+			MS.hookMethod(_class, method, new MethodAlteration<Object, Object>() {
+				public Object invoked(Object _this, Object... args) throws Throwable {
+					final String testName = Common.getProcessName();
+					if (testName == null || !isBlacklisted(testName)) {
+						//Log.d(Common.TAG, "hookMethod, and testName: " + testName);
+						return invoke(_this, args);
+					}
+
+					Log.i(Common.TAG, "4 Blacklisted app: " + testName);
+					//Log.i(Common.TAG, "Called getDrawable for: " + (String)args[0]);
+
+					String packageName = (String) args[0];
+					if(packageName != null && stringContainsFromCollection(packageName, Common.DEFAULT_KEYWORD_ENTRIES)) {
+						packageName = "FAKEPACKAGENAME";
+						args[0] = packageName;
+					}
+
+					return invoke(_this, args);
+				}
+			});
+			//Log.d(Common.TAG, "initForPackageManager: getDrawable success.");
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (NoSuchMethodException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		try {
+			_class = Class.forName("android.app.ApplicationPackageManager");
+			method = _class.getMethod("getApplicationLogo", String.class);
+			MS.hookMethod(_class, method, new MethodAlteration<Object, Object>() {
+				public Object invoked(Object _this, Object... args) throws Throwable {
+					final String testName = Common.getProcessName();
+					if (testName == null || !isBlacklisted(testName)) {
+						//Log.d(Common.TAG, "hookMethod, and testName: " + testName);
+						return invoke(_this, args);
+					}
+
+					Log.i(Common.TAG, "5 Blacklisted app: " + testName);
+					//Log.i(Common.TAG, "Called getApplicationLogo for: " + (String)args[0]);
+
+					String packageName = (String) args[0];
+					if(packageName != null && stringContainsFromCollection(packageName, Common.DEFAULT_KEYWORD_ENTRIES)) {
+						packageName = "FAKEPACKAGENAME";
+						args[0] = packageName;
+					}
+
+					return invoke(_this, args);
+				}
+			});
+			//Log.d(Common.TAG, "initForPackageManager: getApplicationLogo success.");
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (NoSuchMethodException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
+		try {
+			_class = Class.forName("android.app.ApplicationPackageManager");
+			method = _class.getMethod("getApplicationIcon", String.class);
+			MS.hookMethod(_class, method, new MethodAlteration<Object, Object>() {
+				public Object invoked(Object _this, Object... args) throws Throwable {
+					final String testName = Common.getProcessName();
+					if (testName == null || !isBlacklisted(testName)) {
+						//Log.d(Common.TAG, "hookMethod, and testName: " + testName);
+						return invoke(_this, args);
+					}
+
+					Log.i(Common.TAG, " 6Blacklisted app: " + testName);
+					//Log.i(Common.TAG, "Called getApplicationIcon for: " + (String)args[0]);
+
+					String packageName = (String) args[0];
+					if(packageName != null && stringContainsFromCollection(packageName, Common.DEFAULT_KEYWORD_ENTRIES)) {
+						packageName = "FAKEPACKAGENAME";
+						args[0] = packageName;
+					}
+
+					return invoke(_this, args);
+				}
+			});
+			//Log.d(Common.TAG, "initForPackageManager: getApplicationIcon success.");
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (NoSuchMethodException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		try {
+			_class = Class.forName("android.app.ApplicationPackageManager");
+			method = _class.getMethod("getApplicationEnabledSetting", String.class);
+			MS.hookMethod(_class, method, new MethodAlteration<Object, Object>() {
+				public Object invoked(Object _this, Object... args) throws Throwable {
+					final String testName = Common.getProcessName();
+					if (testName == null || !isBlacklisted(testName)) {
+						//Log.d(Common.TAG, "hookMethod, and testName: " + testName);
+						return invoke(_this, args);
+					}
+
+					Log.i(Common.TAG, "7 Blacklisted app: " + testName);
+					//Log.i(Common.TAG, "Called getApplicationEnabledSetting for: " + (String)args[0]);
+
+					String packageName = (String) args[0];
+					if(packageName != null && stringContainsFromCollection(packageName, Common.DEFAULT_KEYWORD_ENTRIES)) {
+						packageName = "FAKEPACKAGENAME";
+						args[0] = packageName;
+					}
+
+					return invoke(_this, args);
+				}
+			});
+			//Log.d(Common.TAG, "initForPackageManager: getApplicationEnabledSetting success.");
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (NoSuchMethodException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
 		try {
 			_class = Class.forName("android.app.ApplicationPackageManager");
 			method = _class.getMethod("getInstalledApplications", Integer.TYPE);
@@ -50,7 +283,7 @@ public class Main {
 						return invoke(_this, args);
 					}
 
-					Log.i(Common.TAG, "Blacklisted app: " + testName);
+					Log.i(Common.TAG, "8 Blacklisted app: " + testName);
 
 					List<ApplicationInfo> packages = (List<ApplicationInfo>) invoke(_this, args);
 					Iterator<ApplicationInfo> iter = packages.iterator();
@@ -86,7 +319,7 @@ public class Main {
 						return invoke(_this, args);
 					}
 
-					Log.i(Common.TAG, "Blacklisted app: " + testName);
+					Log.i(Common.TAG, "9 Blacklisted app: " + testName);
 
 					String packageName = (String) args[0];
 					if(packageName != null && stringContainsFromCollection(packageName, Common.DEFAULT_KEYWORD_ENTRIES)) {
@@ -124,7 +357,7 @@ public class Main {
 						return invoke(_this, args);
 					}
 
-					Log.i(Common.TAG, "Blacklisted app: " + testName);
+					Log.i(Common.TAG, "10 Blacklisted app: " + testName);
 
 					List<RunningAppProcessInfo> processes = (List<RunningAppProcessInfo>) invoke(_this, args);
 					Iterator<RunningAppProcessInfo> iter = processes.iterator();
@@ -160,7 +393,7 @@ public class Main {
 						return invoke(_this, args);
 					}
 
-					Log.i(Common.TAG, "Blacklisted app: " + testName);
+					Log.i(Common.TAG, "11 Blacklisted app: " + testName);
 
 					List<RunningTaskInfo> tasks = (List<RunningTaskInfo>) invoke(_this, args);
 					Iterator<RunningTaskInfo> iter = tasks.iterator();
@@ -196,7 +429,7 @@ public class Main {
 						return invoke(_this, args);
 					}
 
-					Log.i(Common.TAG, "Blacklisted app: " + testName);
+					Log.i(Common.TAG, "12 Blacklisted app: " + testName);
 
 					List<RunningServiceInfo> services = (List<RunningServiceInfo>) invoke(_this, args);
 					Iterator<RunningServiceInfo> iter = services.iterator();
@@ -233,7 +466,7 @@ public class Main {
 						return invoke(_this, args);
 					}
 
-					Log.i(Common.TAG, "Blacklisted app: " + testName);
+					Log.i(Common.TAG, "13 Blacklisted app: " + testName);
 
 					List<RecentTaskInfo> tasks = (List<RecentTaskInfo>) invoke(_this, args);
 					Iterator<RecentTaskInfo> iter = tasks.iterator();
@@ -275,7 +508,7 @@ public class Main {
 						return invoke(_this, args);
 					}
 
-					Log.i(Common.TAG, "Blacklisted app: " + testName);
+					Log.i(Common.TAG, "14 Blacklisted app: " + testName);
 					String[] execArray = (String[]) args[0];
 					if ((execArray != null)  && (execArray.length >= 1)) {
 //						String tempString = "Exec Command:";
@@ -357,7 +590,7 @@ public class Main {
 						return invoke(_this, args);
 					}
 
-					Log.i(Common.TAG, "Blacklisted app: " + testName);
+					Log.i(Common.TAG, "15 Blacklisted app: " + testName);
 
 
 					List<String> execList = (List<String>) args[0];
@@ -421,7 +654,7 @@ public class Main {
 						return invoke(_this, args);
 					}
 
-					Log.i(Common.TAG, "Blacklisted app: " + testName);
+					Log.i(Common.TAG, "16 Blacklisted app: " + testName);
 
 
 					List<String> execList = (List<String>) args[0];
