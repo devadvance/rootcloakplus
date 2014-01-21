@@ -131,7 +131,8 @@ public class Common {
 		"nl.ziggo.android.tv",
 		"com.orange.fr.ocs",
 		"com.adb.android.app.iti",
-		"com.mobileiron"};
+		"com.mobileiron", 
+		"be.belgacom.mobile.tveverywhere"};
 	public static final List<String> DEFAULT_BLACKLIST_ENTRIES = new ArrayList<String> (Arrays.asList(DEFAULT_BLACKLIST_ARRAY));
 	public static final String DEBUG_KEY = "DEBUGGERPREF";
 	
@@ -143,7 +144,8 @@ public class Common {
 	public static final String[] DEFAULT_KEYWORD_LIST = new String[] { "supersu", "superuser", "Superuser", 
 		"noshufou", "xposed", "rootcloak", 
 		"chainfire", "titanium", "Titanium", 
-		"substrate", "greenify"};
+		"substrate", "greenify", "amphoras",
+		"app_process.orig", ".tmpsu","-ROOTCLOAK"};
 	public static final List<String> DEFAULT_KEYWORD_ENTRIES = new ArrayList<String> (Arrays.asList(DEFAULT_KEYWORD_LIST));
 	public static final Set<String> DEFAULT_KEYWORD_SET = new HashSet<String>(Arrays.asList(DEFAULT_KEYWORD_LIST));
 	public static final String[] DEFAULT_COMMAND_LIST = new String[] { "su", "which", "busybox", "pm", "am", "sh", "ps", "logcat"};
