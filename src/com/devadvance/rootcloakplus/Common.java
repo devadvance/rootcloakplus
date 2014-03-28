@@ -154,9 +154,13 @@ public class Common {
 	public static final String[] DEFAULT_COMMAND_LIST = new String[] { "su", "which", "busybox", "pm", "am", "sh", "ps", "logcat"};
 	public static final Set<String> DEFAULT_COMMAND_SET = new HashSet<String>(Arrays.asList(DEFAULT_COMMAND_LIST));
 	
+//	public static final String[] DEFAULT_GREP_ARRAY = new String[] { "|", "grep", "-v", "supersu", "|", "grep", "-v", "superuser", "|", "grep", "-v", "Superuser", 
+//		"|", "grep", "-v", "noshufou", "|", "grep", "-v", "xposed", "|", "grep", "-v", "rootcloak", 
+//		"|", "grep", "-v", "chainfire", "|", "grep", "-v", "titanium", "|", "grep", "-v", "Titanium", 
+//		"|", "grep", "-v", "substrate", "|", "grep", "-v", "greenify", "|", "grep", "-v", "root", "|", "grep", "-v", "su"};
 	public static final String[] DEFAULT_GREP_ARRAY = new String[] { "|", "grep", "-v", "supersu", "|", "grep", "-v", "superuser", "|", "grep", "-v", "Superuser", 
 		"|", "grep", "-v", "noshufou", "|", "grep", "-v", "xposed", "|", "grep", "-v", "rootcloak", 
 		"|", "grep", "-v", "chainfire", "|", "grep", "-v", "titanium", "|", "grep", "-v", "Titanium", 
-		"|", "grep", "-v", "substrate", "|", "grep", "-v", "greenify", "|", "grep", "-v", "root", "|", "grep", "-v", "su"};
+		"|", "grep", "-v", "substrate", "|", "grep", "-v", "greenify", "|", "grep", "-v", "su"};
 	public static final List<String> DEFAULT_GREP_ENTRIES = new ArrayList<String> (Arrays.asList(DEFAULT_GREP_ARRAY));
 }

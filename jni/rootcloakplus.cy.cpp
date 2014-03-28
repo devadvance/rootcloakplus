@@ -13,6 +13,7 @@
 #include <dirent.h>
 #include <fcntl.h>
 #include <stdarg.h>
+#include <dlfcn.h>
 
 #define DEBUG_TAG "RootCloakPlus"
 #define INFO_TAG "RootCloakPlus"
@@ -23,7 +24,7 @@
 #define NUM_STAT_LIST 8
 #define GREPLIST_LENGTH 53
 
-#define TURNOFFDEBUG 1
+//#define TURNOFFDEBUG 1
 //#define TURNOFFINFO 1
 
 #ifdef TURNOFFDEBUG
@@ -46,6 +47,8 @@ static int (*s_orig_stat)( const char *path, struct stat *buf );
 static int (*s_orig_system)(const char *command);
 static struct dirent * (*s_orig_readdir)(DIR *dirp);
 static int (*s_orig_open)(const char *path, int oflags, ... );
+static ssize_t (*s_orig_readlink)(const char *path, char *buf, size_t bufsiz);
+ssize_t (*s_orig_write)(int fd, const void *buf, size_t count);
 
 const char * greplist[] = { "|", "grep", "-v", "supersu", "|", "grep", "-v", "superuser", "|", "grep", "-v", "Superuser",
 						"|", "grep", "-v", "noshufou", "|", "grep", "-v", "xposed", "|", "grep", "-v", "rootcloak",
@@ -149,6 +152,12 @@ char **blacklist_entries = NULL;
 const char blacklist_filename[] = "/data/data/com.devadvance.rootcloakplus/blacklist-ROOTCLOAK";
 int blacklist_entry_count;
 
+static ssize_t (*s_orig_read)(int fd, void *buf, size_t count);
+
+
+
+
+
 
 /*
  * Returns the number of characters read, including NULL terminator
@@ -170,7 +179,8 @@ int custom_read_line ( char * str, int num, int fd ) {
 	int position;
 
 	for (position = 0; position < num - 2; position++) {
-		bytesRead = read(fd, buffer, 1);
+		bytesRead = s_orig_read(fd, buffer, 1);
+		//bytesRead = read(fd, buffer, 1);
 		if (bytesRead > 0) {
 			if (buffer[0] == '\n') {
 				str[position] = '\0';
@@ -328,7 +338,7 @@ int is_cmd_in_blacklist(const char * cmd_string) {
 
 std::string get_selfpath() {
     char buff[1024];
-    ssize_t len = ::readlink("/proc/self/exe", buff, sizeof(buff)-1);
+    ssize_t len = s_orig_readlink("/proc/self/exe", buff, sizeof(buff)-1);
     if (len != -1) {
       buff[len] = '\0';
       return std::string(buff);
@@ -347,7 +357,8 @@ void get_process_name(char *buffer, size_t len) {
 
 	infile = s_orig_open("/proc/self/cmdline", O_RDONLY);
 	if(infile > 0) {
-		bytesRead = read(infile, buffer, len);
+		bytesRead = s_orig_read(infile, buffer, len);
+		//bytesRead = read(infile, buffer, len);
 		close(infile);
 	} else {
 		LOGI("read_copy_file: Error opening input: %s", strerror(errno));
@@ -372,12 +383,14 @@ int read_copy_file(const char * filename, const char * new_filename) {
 
 	infile = s_orig_open(filename, O_RDONLY);
 	if(infile > 0) {
-		bytesRead = read(infile, buf, 4096);
+		bytesRead = s_orig_read(infile, buf, 4096);
+		//bytesRead = read(infile, buf, 4096);
 		while (bytesRead > 0) {
 			write(outfile, buf, bytesRead);
-			bytesRead = read(infile, buf, 4096);
+			bytesRead = s_orig_read(infile, buf, 4096);
+			//bytesRead = read(infile, buf, 4096);
 		}
-		LOGD("read_copy_file: Done copying.");
+		//LOGD("read_copy_file: Done copying.");
 		close(infile);
 	} else {
 		LOGD("read_copy_file: Error opening input: %s", strerror(errno));
@@ -399,7 +412,7 @@ int get_cache_path(char *cache_path, size_t len) {
 	if (strstr(process_name, "NONAME") == NULL) {
 		int snprintf_return = snprintf(cache_path, 512, "/data/data/%s/cache/", process_name);
 		if (snprintf_return >= 0) {
-			LOGD("get_cache_path: Obtained cache path: [%s]", cache_path);
+			//LOGD("get_cache_path: Obtained cache path: [%s]", cache_path);
 			return 0; // Return 0 if there was no issue
 		} else {
 			LOGD("get_cache_path: Error with snprintf: %s", strerror(errno));
@@ -448,7 +461,7 @@ int generate_random_cache_filename(const char * random_cache_filename, size_t fi
 	gen_random(random_name, 16); // Generate a random c string
 	int snprintf_return = snprintf(random_cache_filename, filename_size, "%s%s-ROOTCLOAK", cache_path, random_name); // Combine the cache_path, random c string, and a suffix
 	if (snprintf_return >= 0) {
-		LOGD("generate_random_cache_filename: Generated random cache filename: %s", random_cache_filename);
+		//LOGD("generate_random_cache_filename: Generated random cache filename: %s", random_cache_filename);
 		return 0; // Return 0 if there was no issue
 	} else {
 		LOGD("generate_random_cache_filename: Error with snprintf: %s", strerror(errno));
@@ -473,7 +486,7 @@ int filtered_duplicate_file(const char * filename, const char * new_filename) {
 
 	generate_random_cache_filename(random_cache_filename, 512, 16); // Generate a random cache filename
 
-	LOGD("filtered_duplicate_file: filename: [%s], random_cache_filename: [%s]", filename, random_cache_filename);
+	//LOGD("filtered_duplicate_file: filename: [%s], random_cache_filename: [%s]", filename, random_cache_filename);
 
 	infile = s_orig_open(filename, O_RDONLY);
 	if (infile <= 0) { // Open the file to read from
@@ -488,18 +501,26 @@ int filtered_duplicate_file(const char * filename, const char * new_filename) {
 		return 2; // For now just return the original path that was passed in
 	}
 
-	LOGD("filtered_duplicate_file: Proceeding to copying and filtering...");
+	//LOGD("filtered_duplicate_file: Proceeding to copying and filtering...");
 
 	while (custom_read_line(line, 256, infile) > 0) {
-		if (!is_keyword_in_string(line)) { // If the line has no keywords in it, then output it to the new file
+		if ( (strstr(line, "00000000 00:00 0") != NULL) || (strstr(line, "liblog") != NULL) || (strstr(line, "libdiag") != NULL) || (strstr(line, "linker") != NULL)) {
+			LOGD("filtered_duplicate_file: Filtered out line: [%s]", line);
+		} else if (!is_keyword_in_string(line)) { // If the line has no keywords in it, then output it to the new file
 			//dprintf(outfile,"%s\n", line);
 			bytesToWrite = sprintf(outputLine, "%s\n", line);
 			if (bytesToWrite > 0) {
+				char * pch = strstr(outputLine, "00 rw");
+				if (pch != NULL) {
+					strncpy (pch,"00 r-",5);
+				}
+
+
 				write(outfile, outputLine, bytesToWrite); // Don't include NULL terminator
 			}
 		}
 		else {
-			//LOGD("filtered_duplicate_file: Filtered out line: [%s]", line);
+			LOGD("filtered_duplicate_file: Filtered out line: [%s]", line);
 		}
 	}
 
@@ -522,11 +543,11 @@ int duplicate_magic_file(const char * filename, const char * new_filename) {
 
 	generate_random_cache_filename(random_cache_filename, 512, 16); // Generate a random cache filename
 
-	LOGD("duplicate_magic_file: filename: [%s], random_cache_filename: [%s]", filename, random_cache_filename);
+	//LOGD("duplicate_magic_file: filename: [%s], random_cache_filename: [%s]", filename, random_cache_filename);
 
 	if ( (read_copy_file(filename, random_cache_filename) == 0) ) {
 		return_value = filtered_duplicate_file(random_cache_filename, new_filename); // Duplicate with filtering
-		LOGD("duplicate_magic_file: Removing first cache file.");
+		//LOGD("duplicate_magic_file: Removing first cache file.");
 		remove(random_cache_filename); // Remove the initial cache file
 		return return_value; // Return whatever the call returned
 	} else {
@@ -624,13 +645,19 @@ static int my_stat( const char *path, struct stat *buf ) {
 
 				sprintf(random_path, "%s-ROOTCLOAK", random_string);
 				return s_orig_stat(random_path, buf);
+			} else {
+				int res = s_orig_stat(path, buf);
+				if (buf->st_mode & S_ISUID || buf->st_mode & S_ISGID || buf->st_mode & S_ISVTX) {
+					LOGD("NATIVE: STAT. >>> hiding sticky bit\n");
+					buf->st_mode &= ~(S_ISUID | S_ISGID | S_ISVTX);
+				}
+				return res;
 			}
 
 		}
 	}
 
 	return s_orig_stat(path, buf);
-
 }
 
 
@@ -668,6 +695,7 @@ static int my_execve(const char *filename, char *const argv[],char *const envp[]
 					return s_orig_execve(random_filename, command, envp);
 				} else if ( (strcmp(argv[0], "ps") == 0) || (strcmp(argv[0], "ls") == 0) || ( (strcmp(argv[0], "pm") == 0) && (argv[1] != NULL) && (strcmp(argv[1], "list") == 0) ) ) {
 					// If the command is ps, ls, or pm list: We take it, turn it into sh -c *CMD* and add a bunch of greps to it to strip any offending data
+					// TODO: This section needs to be fixed
 					LOGD("NATIVE: EXECVE. argv[0] is ps, pm list, or ls");
 					int argv_length = 0; // Length of the exec argv array
 					char * temp_arg = 1; // Holds the current arg
@@ -833,6 +861,7 @@ static int my_access (const char *pathname, int mode)
 }
 
 static int my_open(const char *path, int oflags, ... ) {
+	int isBlacklisted = 0;
 	va_list vl;
 	mode_t mode;
 	char test[64];
@@ -863,6 +892,7 @@ static int my_open(const char *path, int oflags, ... ) {
 	if ((process_name != NULL)) { // Check to make sure the buffer is not NULL
 		if (is_process_on_blacklist(process_name) && (path != NULL)) {
 			LOGD("NATIVE: OPEN. Process is on the blacklist: [%s], path: [%s]", process_name, path);
+			isBlacklisted = 1;
 			if ( is_path_on_su_list(path) || is_keyword_in_string(path) ) {
 				LOGD("NATIVE: OPEN. Blacklisted path. processname: [%s], filename: [%s]", process_name, path);
 				if (strcmp(path, "/data/system/packages.list") == 0) {
@@ -879,7 +909,7 @@ static int my_open(const char *path, int oflags, ... ) {
 				LOGD("NATIVE: OPEN. path has /proc/...");
 				LOGD("NATIVE: OPEN. processname: [%s] and path: [%s]", process_name, path);
 				LOGD("NATIVE: OPEN. blocking blacklisted path...");
-				if (ends_with(path, "/stat")) {
+				/*if (ends_with(path, "/stat")) {
 					strcpy(new_filename, "/proc/1/stat");
 				} else if (ends_with(path, "/cmdline")) {
 					strcpy(new_filename, "/proc/1/cmdline");
@@ -887,6 +917,20 @@ static int my_open(const char *path, int oflags, ... ) {
 					strcpy(new_filename, "/proc/1/status");
 				} else if (ends_with(path, "/maps")) {
 					strcpy(new_filename, "/proc/1/maps");
+				}*/
+
+				if ((ends_with(path, "/stat")) ||
+						(ends_with(path, "/cmdline")) ||
+						(ends_with(path, "/status")) ||
+						(ends_with(path, "/maps")) ||
+						(ends_with(path, "/smaps"))) {
+					//LOGD("NATIVE: OPEN. Here1");
+					testingInt = duplicate_magic_file(path, new_filename);
+					if (testingInt == 0) {
+						remove_file = 1;
+					}
+				} else {
+					//LOGD("NATIVE: OPEN. Here2");
 				}
 			} else if ( ( (strncmp(path, "/proc/self/", 11) == 0 ) || (strncmp(path, pid_string, pid_string_length) == 0 ) ) && (ends_with(path, "/maps")) ) {
 				if (ends_with(path, "/maps")) {
@@ -914,12 +958,110 @@ static int my_open(const char *path, int oflags, ... ) {
 
 	if (remove_file > 0) {
 		LOGD("NATIVE: OPEN. new_filename: [%s]", new_filename);
-		LOGD("NATIVE: OPEN. remove() performed on duplicated file before returning.");
+		//LOGD("NATIVE: OPEN. remove() performed on duplicated file before returning.");
 		remove(new_filename);
+	}
+	if (isBlacklisted) {
+		LOGD("NATIVE: OPEN. Returning fd: [%d]", temp_fd);
 	}
 
 	return temp_fd;
 }
+
+static ssize_t my_read(int fd, void *buf, size_t count) {
+
+	char process_name[512];
+	get_process_name(process_name, 512);
+
+	//if ((process_name != NULL) && ((strcmp(process_name, "com.bskyb.skygo") == 0) || (strcmp(process_name, "jp.gungho.pad") == 0))) { // Check to make sure the buffer is not NULL
+	if ((process_name != NULL) && (strcmp(process_name, "com.barclays.android.barclaysmobilebanking") == 0)) { // Check to make sure the buffer is not NULL
+		if (fd > 1) {
+			char pathbuf[512];
+			char procpath[256];
+			sprintf(procpath, "/proc/self/fd/%d", fd);
+			ssize_t howmuch = s_orig_readlink(procpath, pathbuf, 512);
+			ssize_t amountRead = s_orig_read(fd, buf, count);
+			//ssize_t amountRead = read(fd, buf, count);
+			LOGD("NATIVE: READ. on fd [%d] with path:[%s] and amountRead: [%zd].", fd, pathbuf, amountRead);
+			if (amountRead > 0) {
+				LOGD("NATIVE: READ. Contents: [%s]", (char *)buf);
+			}
+			return amountRead;
+
+		} else {
+			return s_orig_read(fd, buf, count);
+			//return read(fd, buf, count);
+		}
+	} else {
+		return s_orig_read(fd, buf, count);
+		//return read(fd, buf, count);
+	}
+}
+
+
+
+ssize_t my_write(int fd, const void *buf, size_t count) {
+	char process_name[512];
+	get_process_name(process_name, 512);
+
+	//if ((process_name != NULL) && ((strcmp(process_name, "com.bskyb.skygo") == 0) || (strcmp(process_name, "jp.gungho.pad") == 0))) { // Check to make sure the buffer is not NULL
+	if ((process_name != NULL) && (strcmp(process_name, "com.bskyb.skygo") == 0)) { // Check to make sure the buffer is not NULL
+		if (fd > 1) {
+			char pathbuf[512];
+			char procpath[256];
+			sprintf(procpath, "/proc/self/fd/%d", fd);
+			ssize_t howmuch = s_orig_readlink(procpath, pathbuf, 512);
+			//ssize_t amountWritten = s_orig_write(fd, buf, count);
+			ssize_t amountWritten = write(fd, buf, count);
+			LOGD("NATIVE: WRITE. on fd [%d] with path:[%s] and amountWritten: [%zd].", fd, pathbuf, amountWritten);
+			if (amountWritten > 0) {
+				LOGD("NATIVE: WRITE. Contents: [%s]", (char *)buf);
+			}
+			return amountWritten;
+
+		} else {
+			//return s_orig_write(fd, buf, count);
+			return write(fd, buf, count);
+		}
+	} else {
+		//return s_orig_write(fd, buf, count);
+		return write(fd, buf, count);
+	}
+}
+
+static int (*s_orig_fstatat)(int dirfd, const char *pathname, struct stat *buf, int flags);
+
+static int my_fstatat(int dirfd, const char *pathname, struct stat *buf, int flags) {
+	char buffer[512];
+	get_process_name(buffer, 512);
+
+	if ((buffer != NULL) && (*buffer != '\0')) { // Check to make sure the buffer is not NULL
+		if (is_process_on_blacklist(buffer)) { // If this is a blacklisted process, proceed
+			LOGD("NATIVE: FSTATAT. Process is on the blacklist...");
+			LOGD("NATIVE: FSTATAT.000 processname: [%s] and pathname: [%s]", buffer, pathname);
+		}
+	}
+
+	return s_orig_fstatat(dirfd, pathname, buf, flags);
+}
+
+
+
+static ssize_t my_readlink(const char *path, char *buf, size_t bufsiz) {
+	char buffer[512];
+	get_process_name(buffer, 512);
+
+	if ((buffer != NULL) && (*buffer != '\0')) { // Check to make sure the buffer is not NULL
+		if (is_process_on_blacklist(buffer)) { // If this is a blacklisted process, proceed
+			LOGD("NATIVE: READLINK. Process is on the blacklist...");
+			LOGD("NATIVE: READLINK.000 processname: [%s] and pathname: [%s]", buffer, path);
+		}
+	}
+
+	return s_orig_readlink(path, buf, bufsiz);
+}
+
+
 
 MSInitialize {
 	MSHookFunction(access, my_access, (void*)&s_orig_access);
@@ -928,4 +1070,10 @@ MSInitialize {
 	MSHookFunction(system, my_system, (void*)&s_orig_system);
 	MSHookFunction(readdir, my_readdir, (void*)&s_orig_readdir);
 	MSHookFunction(open, my_open, (void*)&s_orig_open);
+	//MSHookFunction(fstatat, my_fstatat, (void*)&s_orig_fstatat);
+	//MSHookFunction(readlink, my_readlink, (void*)&s_orig_readlink);
+	MSHookFunction(read, my_read, (void*)&s_orig_read);
+	//MSHookFunction(symlink, my_symlink, (void*)&s_orig_symlink);
+	//MSHookFunction(dlopen, my_dlopen, (void*)&s_orig_dlopen);
+	//MSHookFunction(write, my_write, (void*)&s_orig_write);
 }

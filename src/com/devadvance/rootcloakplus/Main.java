@@ -318,10 +318,10 @@ public class Main {
 						//Log.d(Common.TAG, "hookMethod, and testName: " + testName);
 						return invoke(_this, args);
 					}
-
-					Log.i(Common.TAG, "9 Blacklisted app: " + testName);
-
 					String packageName = (String) args[0];
+					Log.i(Common.TAG, "9 Blacklisted app: " + testName + " packageName: " + packageName);
+
+					
 					if(packageName != null && stringContainsFromCollection(packageName, Common.DEFAULT_KEYWORD_ENTRIES)) {
 						packageName = "FAKEPACKAGENAME";
 						args[0] = packageName;
@@ -511,11 +511,11 @@ public class Main {
 					Log.i(Common.TAG, "14 Blacklisted app: " + testName);
 					String[] execArray = (String[]) args[0];
 					if ((execArray != null)  && (execArray.length >= 1)) {
-//						String tempString = "Exec Command:";
-//						for (String temp : execArray) {
-//							tempString = tempString + " " + temp;
-//						}
-//						Log.d(Common.TAG, tempString);
+						String tempString = "Exec Command:";
+						for (String temp : execArray) {
+							tempString = tempString + " " + temp;
+						}
+						Log.d(Common.TAG, tempString);
 
 						if (execArray[0] == "su") {
 							throw new IOException();
@@ -595,6 +595,11 @@ public class Main {
 
 					List<String> execList = (List<String>) args[0];
 					if ((execList != null)  && (execList.size() >= 1)) {
+						String outputString = "";
+						for (String temp : execList) {
+							outputString += " " + temp;
+						}
+						Log.d(Common.TAG, "List: " + outputString);
 
 						ArrayList<String> finalArgs = new ArrayList<String>();
 
@@ -628,6 +633,15 @@ public class Main {
 							}
 						}
 
+					}
+					
+					execList = (List<String>) args[0];
+					if ((execList != null)  && (execList.size() >= 1)) {
+						String outputString = "";
+						for (String temp : execList) {
+							outputString += " " + temp;
+						}
+						Log.d(Common.TAG, "New List: " + outputString);
 					}
 
 					return invoke(_this, args);
@@ -749,19 +763,26 @@ public class Main {
 	private static List<String> buildGrepListSingle(List<String> original, boolean addSH) {
 		StringBuilder builder = new StringBuilder();
 		List<String> originalList = new ArrayList<String>();
-		if (addSH) {
-			originalList.add("sh");
-			originalList.add("-c");
+		
+		originalList.add("sh");
+		originalList.add("-c");
+		if (!addSH) {
+			original.remove(0);
+			original.remove(0);
 		}
-		for (String temp : original) {
-			builder.append(" ");
-			builder.append(temp);
+		builder.append("\"");
+		for (int i = 0; i < original.size();i++) {
+			if (i > 0) {
+				builder.append(" ");
+			}
+			builder.append(original.get(i));
 		}
 		//originalList.addAll(Arrays.asList(original));
 		for (String temp : Common.DEFAULT_GREP_ENTRIES) {
 			builder.append(" ");
 			builder.append(temp);
 		}
+		builder.append("\"");
 		//originalList.addAll(Common.DEFAULT_GREP_ENTRIES);
 		originalList.add(builder.toString());
 		return originalList;
